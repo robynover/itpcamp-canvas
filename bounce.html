@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta http-equiv="Content-type" content="text/html; charset=utf-8">
+    <title>Canvas: Bounce</title>
+    <style type="text/css" media="screen">
+        #b{
+            border:1px solid #ccc;
+        }
+    </style>
+    <script type="text/javascript" charset="utf-8">
+        var canvas;
+        var ctx;
+        var loc = 5;
+        var speed = 50;
+
+        window.onload = function(){
+            canvas = document.getElementById("the_canvas");
+            ctx = canvas.getContext("2d"); 
+            setInterval(move,200); 
+        }
+
+        function drawScreen() {
+            //create a rectangle
+            ctx.fillStyle = '#660033';
+            ctx.fillRect(50, 25, 50, 50);   
+        }  
+        
+        function move(){ 
+            loc = loc + speed;
+            // clear the screen
+            ctx.clearRect(0,0,500,375);
+
+            // draw square
+            ctx.fillStyle = '#660033';  
+            ctx.fillRect(100, loc, 50, 50);
+            
+            // determine direction
+            if (loc >= canvas.height - 20){
+                speed = -speed;
+            }
+            if (loc < 10){
+                speed = -speed;
+            }
+            // draw circle
+            ctx.fillStyle = '#333333';
+            circle(250,loc,80);      
+        }
+        
+        // helper function for drawing circles 
+        function circle(x,y,r) {
+          ctx.beginPath();
+          ctx.arc(x, y, r, 0, Math.PI*2, true);
+          ctx.closePath();
+          ctx.fill();
+        }
+        
+    </script>
+</head>
+<body>
+    <canvas id="the_canvas" width="500" height="375" style="border:1px solid #ccc"></canvas>
+</body>
+</html>

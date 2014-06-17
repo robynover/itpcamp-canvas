@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta http-equiv="Content-type" content="text/html; charset=utf-8">
+    <title>Chart</title>
+    <style type="text/css" media="screen">
+        canvas{
+            border:1px solid #ccc;
+        }
+    </style>
+    <script type="text/javascript" charset="utf-8">
+        var data = {
+            john: 14,
+            jane: 31,
+            julie: 25,
+            ben: 19,
+            betty: 4
+        };
+        var colors = ['#ff0000','#0000ff','#00ff00'];
+    
+        function init(){
+           var canvas = document.getElementById("acanvas");
+           var ctx = canvas.getContext("2d");
+           var highest = getHighest(data);
+           drawChart();
+       }
+       
+       function drawChart(){
+           var canvas = document.getElementById("acanvas");
+           var ctx = canvas.getContext("2d");
+			//-------set up chart -----------//
+           num_points = Object.keys(data).length;
+           bar_width = 20;
+           // how much space does each point get?
+           section_width = canvas.width/num_points;
+           // where to place bar within section?
+           bar_x = (section_width/2) - (bar_width/2);
+           // how much is each unit worth in pixels?
+           // round highest to the nearest 10
+          chart_top = Math.ceil(highest / 10) * 10;
+          pixel_units = (canvas.height - 50)/chart_top; //leaving 50px on top for prettiness
+          count = 0;
+          for (d in data){
+             bar_height = data[d] * pixel_units;
+             //draw!
+             //get a color
+             color_index = count;             
+             if (count + 1 > colors.length){ //if there are more data points than colors, start the colors over
+                 iter = Math.floor((count + 1) / colors.length);
+                 color_index = count - (colors.length * iter);
+             }
+             ctx.fillStyle = colors[color_index]; 
+             this_bar_x = bar_x + (section_width * count);
+             ctx.fillRect(this_bar_x,canvas.height - bar_height,bar_width,bar_height);
+             //write
+             ctx.fillStyle = "black";
+			 ctx.font = "22pt Arial";
+             text_widthObj = ctx.measureText(d);
+             text_x = (this_bar_x - (text_widthObj.width)) - 10;
+             ctx.fillText(d, text_x, canvas.height - 20);
+             count++;
+          }
+          
+       }
+        function getHighest(obj){
+            //find highest number
+               highest = 0;
+               for (i in obj){
+                  if (obj[i] > highest){
+                      highest = obj[i];
+                  }
+              }
+              return highest;
+        }
+        
+        
+    </script>
+</head>
+<body onload="init();">
+    <canvas id="acanvas" width="800" height="600"></canvas>
+    
+</body>
+</html>

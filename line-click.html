@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta http-equiv="Content-type" content="text/html; charset=utf-8">
+    <title>Canvas: Line Clicker</title>
+    <style type="text/css" media="screen">
+        #canvas{
+            border:1px solid #ccc;
+        }
+    </style>
+    <script type="text/javascript" charset="utf-8">
+		var started = 0; //track whether or not this is the first click
+		var canvasEl;
+        function init(){
+            canvasEl = document.getElementById("canvas");
+            canvasEl.addEventListener('click',getMouse,false); //Listen for a mouse click
+		}
+		function drawLine(x,y){
+			var mycanvas = document.getElementById("canvas");
+            var ctx = mycanvas.getContext("2d");
+			if (!started){ //if this is the first click, begin path
+				ctx.beginPath();
+				ctx.moveTo(x,y);
+				started = 1;
+			}
+			drawPoint(ctx,x,y); 
+			ctx.lineTo(x,y);
+			ctx.stroke();	
+		}
+		//draws a small square to serve as an endpoint
+		function drawPoint(context,x,y){ 
+			ptSize = 10;
+			ptX = x-(ptSize/2);
+			ptY = y-(ptSize/2);
+			context.fillStyle = "rgb(255,0, 0)";
+            context.fillRect(ptX,ptY,ptSize,ptSize);
+		}
+		
+		//get the mouse coordinates
+		function getMouse(e){ 
+            c_bounds = canvas.getBoundingClientRect(); // get the bounds of canvas on the page
+          	x = e.clientX - c_bounds.left; //find mouse position relative to canvas position
+          	y = e.clientY - c_bounds.top;            
+			drawLine(x,y);
+        }
+
+    </script>
+</head>
+<body onload="init();">
+    <p>Click the canvas to begin drawing</p>
+    <canvas id="canvas" width="500" height="375"></canvas>
+</body>
+</html>

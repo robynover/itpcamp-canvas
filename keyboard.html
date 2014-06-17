@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta http-equiv="Content-type" content="text/html; charset=utf-8">
+    <title>Canvas Keyboard Listener</title>
+    <style type="text/css" media="screen">
+        #b{
+            border:1px solid #ccc;
+        }
+    </style>
+    
+</head>
+<body onload="init()">
+	<p>Use J and K keys to move</p>
+    <canvas id="the_canvas" width="500" height="375" style="border:1px solid #ccc"></canvas>
+
+    <script type="text/javascript" charset="utf-8">
+        /*
+        Drawing a circle and listening for keyboard input
+        Move the circle on the screen using the "J" and "K" keys
+        */
+        var canvas = document.getElementById("the_canvas");
+        var ctx = canvas.getContext("2d");
+
+        var xloc = 50; // the x coordinate of the circle
+        var yloc = 100; // y coord
+        var speed = 10; // distance the circle will move on each keypress
+        
+        function init(){
+            document.addEventListener('keypress',getKey,false); //Listen for key press
+            setInterval(drawScreen,100); //The canvas is redrawn every x milliseconds
+        }
+        
+        function drawScreen() {
+            //clear the canvas
+            ctx.clearRect(0,0,500,375);
+            //set the fill color for the circle
+            ctx.fillStyle = '#ccff66';
+            //draw the circle
+            circle(xloc, yloc, 50, ctx);
+            
+        }
+        
+        //draw circle
+        function circle(x,y,r,ctx) {
+          ctx.beginPath();
+          ctx.arc(x, y, r, 0, Math.PI*2, true);
+          ctx.closePath();
+          ctx.fill();
+        }
+        
+        //get the keyboard input
+        function getKey(evt){ 
+            if (evt.keyCode == 107){ //k
+                 xloc+= speed; //move the circle to the right
+              } else if (evt.keyCode == 106){ //j
+                 xloc -= speed; //move the circle to the left
+              }
+        }
+        
+    </script>
+</body>
+</html>

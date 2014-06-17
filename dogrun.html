@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta http-equiv="Content-type" content="text/html; charset=utf-8">
+    <title>Dog Run!</title>
+    <style type="text/css" media="screen">
+        canvas{
+            border:1px solid #ccc;
+        }
+    </style>
+    <script type="text/javascript" charset="utf-8">
+		//set up variables
+		var my_canvas = 0;
+        var ctx = 0;
+        var last_x = 0;
+        var mouseX;
+        var speed = 50; //set the speed
+        var alt = 1;
+		//set up images
+		var png1 = 'img/dogwalka1.png';
+        var png2 = 'img/dogwalkb1.png';
+		//create the images
+        var dog_img1 = new Image();   // Create new img element
+        dog_img1.src = png1; // Set source path
+
+        var dog_img2 = new Image();  
+        dog_img2.src = png2; 
+		//wait for the images to load
+		dog_img1.onload = function(){
+			dog_img2.onload = function(){
+				init();	
+			};
+		};
+		
+		function init(){
+			my_canvas = document.getElementById('acanvas');
+            ctx = my_canvas.getContext('2d');
+			window.addEventListener('mousemove',checkMouse,false);
+			setInterval("getDirection()", 100);
+            drawDog('R');
+        }
+        function drawDog(dir){ 
+            //dir determines whether the dog is going left or right
+
+            // This is a very simple walk cycle, just switches between 2 images  
+            if (alt){ 
+                alt = 0;
+            } else {
+                alt = 1;
+            }
+            
+            img = dog_img1;
+            if (alt){
+                img = dog_img2;
+            }
+
+            y = 0;
+            
+            //clear stage
+            ctx.clearRect(0,0,my_canvas.width,my_canvas.height);
+            //create background
+            ctx.fillStyle = '#B6E9E2';
+            ctx.fillRect(0,0,my_canvas.width,my_canvas.height);
+            ctx.fillStyle = '#66CC00';
+            ctx.fillRect(0,99,my_canvas.width,21);   
+		
+			if (dir == 'L'){ //default img is right-facing
+                //flip the image
+				ctx.save(); // save the current state so we can get it back
+                // do transformations
+                ctx.translate(img.width, 0);
+                ctx.scale(-1, 1);
+
+                //reverse the x coordinate to correspond to the reversed stage
+                last_x = -last_x;	
+              } 
+		
+            //get the new x coordinate
+            new_x = last_x + speed;
+			// don't let it walk off screen on the right 
+			if (new_x < 900){
+                //draw the image
+	            ctx.drawImage(img,new_x,y);   
+			} 
+            ctx.restore(); // change the transform (translate) state back to normal
+            last_x = Math.abs(new_x);      
+        }
+        
+        function checkMouse(e){ //store the mouse position in a variable
+            mouseX = e.pageX;
+        }
+        function getDirection(){
+			if (!last_x){last_x = mouseX;} //set the initial mouse position for last x
+            //which direction should the dog face?
+            if (last_x > mouseX){ //moving left
+                dir = 'L';
+            } else { 
+                dir = 'R';
+            }
+            //get the difference between the new position and the old position. if it's less than the speed, don't draw
+            diff = (last_x + my_canvas.offsetLeft) - mouseX;
+
+            //console.log((my_canvas.offsetLeft + my_canvas.width) - mouseX);
+            if ((my_canvas.offsetLeft + my_canvas.width - img.width - mouseX) > 0){
+                console.log('on stage');
+            }
+            /*
+            Using offsetLeft here to account for the location of the canvas element within the page.
+            The zero position in the canvas is not the same as the zero position in the window.
+            */  
+             if (Math.abs(diff) > speed){
+                // if it's not too far off to the right
+                if ((my_canvas.offsetLeft + my_canvas.width - (img.width/2) - mouseX) > 0){
+                    drawDog(dir);
+                }    
+             }  
+        }
+     
+    </script>
+</head>
+<body>
+    <canvas id="acanvas" width="900" height="120"></canvas>
+    
+</body>
+</html>

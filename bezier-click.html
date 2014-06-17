@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta http-equiv="Content-type" content="text/html; charset=utf-8">
+    <title>Canvas: Bezier Curves with Mouse Listener</title>
+    <style type="text/css" media="screen">
+        #canvas{
+            border:1px solid #ccc;
+            margin-top: 100px;
+        }
+    </style>
+    <script type="text/javascript" charset="utf-8">
+        /*
+        Bezier curve example.
+        The mouse location determines the coordinates of the first control point. 
+        The other points are fixed.
+        */
+        var canvasEl;
+        //objects to hold the x and y coords of the points
+		var controlPt1 = {x:110,y:30}; 
+		var controlPt2 = {x:130,y:80};
+		var startPt = {x:75,y:140}; 
+        function init(){
+			canvasEl = document.getElementById("canvas");
+            canvasEl.addEventListener('click',getMouse,false); //listen for mouse click
+            drawCurve(); //draw an initial curve	
+		}
+		 
+		function drawCurve(){
+			//canvasEl = document.getElementById("canvas");
+			var ctx = canvasEl.getContext("2d");
+			//place control point 1
+			drawPoint(ctx,controlPt1.x,controlPt1.y); // draw the square
+			ctx.beginPath();  
+			ctx.moveTo(startPt.x,startPt.y);
+			ctx.strokeStyle = "rgb(0,0,0)"; 
+			ctx.bezierCurveTo(controlPt1.x,controlPt1.y,controlPt2.x,controlPt2.y,330,12);
+			ctx.stroke();
+			//draw line between first point and control point
+			ctx.beginPath(); //start a new path (not connected to curve)
+			ctx.moveTo(startPt.x,startPt.y);
+			ctx.strokeStyle = "rgb(255,0, 0)";
+			ctx.lineTo(controlPt1.x,controlPt1.y);
+			//ctx.save();
+			ctx.stroke();
+			//ctx.restore(); //turn the line back to black
+			 
+		} 
+		//mouse
+		function getMouse(e){
+            c_bounds = canvas.getBoundingClientRect(); // get the bounds of canvas on the page
+          	controlPt1.x = e.clientX - c_bounds.left; //find mouse position relative to canvas position
+          	controlPt1.y = e.clientY - c_bounds.top;  
+            drawCurve();     
+        }
+        //draws a small square to serve as an endpoint
+		function drawPoint(context,x,y){
+			ptSize = 10;
+			ptX = x-(ptSize/2);
+			ptY = y-(ptSize/2);
+			context.fillStyle = "rgb(255,0, 0)";
+            context.fillRect(ptX,ptY,ptSize,ptSize);
+		}
+		function clearCanvas(){
+			var canvas = document.getElementById("canvas");
+            var ctx = canvas.getContext("2d");
+            ctx.clearRect(0,0,canvas.width,canvas.height);
+		}
+		
+    </script>
+</head>
+<body onload="init();">
+    <canvas id="canvas" width="500" height="375"></canvas>
+	<input type="button" value="clear" id="btn" onclick="clearCanvas();"/>
+	
+</body>
+</html>

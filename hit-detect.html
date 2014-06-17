@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta http-equiv="Content-type" content="text/html; charset=utf-8">
+    <title>HTML5 Canvas</title>
+    <style type="text/css" media="screen">
+        canvas{
+            border:1px solid #ccc;
+        }
+    </style>
+    <script type="text/javascript" charset="utf-8">
+	var canvas;
+	var ctx;
+	var box_size = 25;
+	var pt1 = {};
+	var pt2 = {};
+	var click_pt = {};
+	var bullet_size = 5;
+	var bullet = {};
+	var started = 0;
+	var speed = 15;
+	//var sights = new Image();   // Create new img element
+    //sights.src = 'img/target.png'; // Set source path
+	var brick = {
+		x:100,
+		y:100,
+		size: 50
+	};
+	var img_loc = {};
+	function init(){
+		canvas = document.getElementById("canvas");
+		ctx = canvas.getContext("2d");
+		//mouse listener
+		canvas.addEventListener('click',getMouse,false);
+		//canvas.addEventListener('mousemove',getMouseMove,false);
+		pt1.x = (canvas.width/2) - (box_size/2);
+		pt1.y = canvas.height - box_size;
+		draw();
+
+		
+	}
+    function test(){
+		console.log('test');
+	}
+	interval_id=setInterval(draw,33);
+    function draw(){
+		ctx.clearRect(0,0,canvas.width,canvas.height);
+		//is this a hit?
+		if (detectHit(bullet,brick)){
+			//stop the draw loop
+			clearInterval(interval_id);
+			//make a yellow background
+			ctx.fillStyle = 'yellow';
+			ctx.fillRect(0,0,canvas.width,canvas.height); 
+			//draw text
+			ctx.fillStyle = '#000000';
+			ctx.font = "72pt Arial";
+			ctx.fillText('Hit!', brick.x, canvas.height/2);
+		}
+		//draw the shooter
+		ctx.fillStyle = 'red';
+        ctx.fillRect(pt1.x,pt1.y,box_size,box_size);
+		//draw the brick
+		ctx.fillStyle = '#900';
+		ctx.fillRect(brick.x,brick.y,brick.size,brick.size);
+		//draw the bullet
+		if (started){
+			
+			ctx.fillStyle = '#660033';
+			getVector(pt1,click_pt);
+			ctx.fillRect(bullet.x,bullet.y,bullet_size,bullet_size);
+		}
+		//draw the sights
+		//ctx.drawImage(sights,img_loc.x,img_loc.y);
+    }
+	//get the mouse coordinates
+	function getMouse(e){ 
+		bullet.x = pt1.x;
+		bullet.y = pt1.y;
+        x = e.pageX;
+        y = e.pageY;            
+		//pt1 = getNextLinePoint(pt1.x,pt1.y,x,y);
+		click_pt = {x:x,y:y};
+		started = 1;
+		
+		
+    }
+	/*function getMouseMove(e){
+		x = e.pageX;
+        y = e.pageY;
+		
+		
+		//img_loc.x = x - sights.width/2;
+		//img_loc.y = y - sights.height;
+		
+	}*/
+
+	function getAngle(x1,y1,x2,y2){
+		deltax = x2 - x1;
+		deltay = y2 - y1;
+
+		angle_rad = Math.atan2(deltay,deltax);
+		//angle_deg = angle_rad*180.0/pi
+		return angle_rad;
+	}
+	function getVector(pt1,pt2){
+		radians = getAngle(pt1.x,pt1.y,click_pt.x,click_pt.y);
+		//var angle = 45;
+		//var radians = angle * Math.PI/ 180;
+		
+		var xunits = Math.cos(radians) * speed;
+		var yunits = Math.sin(radians) * speed;
+		//bullet
+		bullet.x += xunits;
+		bullet.y += yunits;
+		//console.log(bullet);
+		
+	}
+	
+	function detectHit(player,brick){
+		player.size = bullet_size;		
+		if( 
+			((brick.y + brick.size) >= player.y && brick.y <= (player.y + player.size))
+			&& ((brick.x +brick.size) >= player.x && brick.x <= (player.x + player.size))
+			){
+			return true;	
+		}
+		return false;
+	}
+	
+    </script>
+</head>
+<body onload="init();">
+    <canvas id="canvas" width="800" height="600"></canvas>
+    <p>Click to aim and shoot</p>
+</body>
+</html>

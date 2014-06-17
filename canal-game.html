@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta http-equiv="Content-type" content="text/html; charset=utf-8">
+    <title>On the Canal</title>
+    <style type="text/css" media="screen">
+        canvas{
+            border:1px solid #ccc;
+        }
+    </style>
+    <script type="text/javascript" charset="utf-8">
+	
+	
+	//set vars
+	var my_canvas;
+	var ctx;
+	var tile_map_img;
+	var player_tile = 8; // the position of the initial boat tile (boat represents the player)
+	var player_alt_tile = 9; // alternate boat tile (side view)
+	var current_grid_coord = {row:0,col:14};
+	var map_data = buildMapData(); 
+	var tile_size =32;
+	
+	
+	//player obj
+	var player = {
+					sprite_x:(player_tile- 1) * tile_size,
+					sprite_y: 0,
+					loc_x: 14 * tile_size,
+					loc_y:0
+				};
+	
+	function init(){
+        my_canvas = document.getElementById('acanvas');
+        ctx = my_canvas.getContext('2d');
+		document.addEventListener('keydown',getKey,false); //Listen for key press
+		 //load tile map
+		tile_map_img= new Image();   // Create new img element
+	    tile_map_img.src = "img/simple_sprite.png";
+		
+		//=====you can't do anything with the image until it has finished loading.====//
+		tile_map_img.onload = function(){ 
+			drawMap();
+		};
+       
+   }
+    
+	/*  
+		a sprite of tiles, each tile is 32px square, and there are 7 tiles, all on the same row
+		we're using the long way of drawing an image: 
+		drawImage(image, sx, sy, sWidth, sHeight, dx, dy, dWidth, dHeight)
+		see https://developer.mozilla.org/en/Canvas_tutorial/Using_images for full documentation 
+	*/
+	
+	function drawMap(){
+		tile_y = 0; //y will always be zero because we have only one row in our sprite sheet image
+		num_rows = map_data.length;
+		
+		for(i=0;i<num_rows;i++){
+			row = map_data[i];
+			
+			for(j=0;j<row.length;j++){
+				tile_x = (row[j] - 1) * tile_size; //x position of the tile within the sprite sheet
+				var dx = j * tile_size; //destination x on the canvas, ie, where the tile should go
+				var dy = i * tile_size; //y position for first row is 0; 32 for second, and so on
+				ctx.drawImage(tile_map_img,tile_x,tile_y,tile_size,tile_size,dx,dy,tile_size,tile_size);
+			}
+		}
+		placePlayer();
+	}
+	
+	function buildMapData(){
+		/*
+		tile key: 
+			 1 = green
+			 2 = green
+			 3 = blue
+			 4 = blue
+			 5 = black
+			 6 = monster
+			 7 = monster
+			 8 = boat top
+			 9 = boat side
+		*/
+		map = [
+			[5,5,5,5,5,1,3,3,3,3,5,5,5,5,4,5,5,5,5,3], //list of tiles in row 1 of canvas
+			[5,5,5,1,1,1,3,3,5,3,3,3,3,3,3,3,3,3,3,3],
+			[5,5,5,1,3,3,3,3,5,3,5,5,5,3,3,2,1,2,1,5],
+			[5,5,5,1,3,3,5,5,5,3,5,5,5,5,3,1,2,1,2,5],
+			[5,5,5,3,3,3,5,5,5,4,2,5,5,5,3,3,3,2,5,5],
+			[5,5,3,3,3,5,5,5,5,4,2,5,5,5,2,3,3,2,5,5],
+			[5,5,3,5,5,5,5,5,5,4,5,5,5,5,5,3,3,3,1,5],
+			[3,3,3,3,3,5,5,5,5,4,4,4,4,5,5,5,5,3,3,1],
+			[3,3,3,3,3,5,5,5,5,5,5,5,4,5,5,5,5,5,3,5],
+			[3,3,3,3,3,5,5,5,5,5,5,5,3,5,5,5,5,5,3,5]
+		];
+		return map;
+	}
+	
+	function placePlayer(){
+		ctx.drawImage(tile_map_img,player.sprite_x,player.sprite_y,tile_size,tile_size,player.loc_x,player.loc_y,tile_size,tile_size);
+	}
+	
+	//get the keyboard input
+	//TODO: this should be optimized for less repetition
+	function getKey(evt){ 
+		console.log(evt);
+		 if (evt.keyCode == 40 || evt.charCode == 40 ){ //down key
+            //water tiles are 3 & 4 (this should be dynamic eventually)
+			sprite_num = map_data[(current_grid_coord.row+1)][current_grid_coord.col];
+			if ( sprite_num == 3 || sprite_num == 4){ // only move if it's in the water
+				//update the coordinates
+				current_grid_coord.row += 1;
+				//update the player's location on the canvas
+				player.loc_y = player.loc_y + tile_size;
+				// use the boat tile that's oriented up and down
+				player.sprite_x =  (player_tile- 1) * tile_size;
+				drawMap();
+			}
+          } else if (evt.keyCode == 37 || evt.charCode == 37){  //left key
+				sprite_num = map_data[current_grid_coord.row][current_grid_coord.col-1];
+				if ( sprite_num == 3 || sprite_num == 4){
+					//update the coordinates -- over one square to left
+					current_grid_coord.col -= 1; 
+					//update the player's location on the canvas
+					player.loc_x = player.loc_x - tile_size;
+					//use the boat tile that goes left and right
+					player.sprite_x =  (player_alt_tile- 1) *tile_size;
+					drawMap();
+				}
+		  } else if (evt.keyCode == 39 || evt.charCode == 39){ //right key
+			sprite_num = map_data[current_grid_coord.row][current_grid_coord.col+1];
+			if ( sprite_num == 3 || sprite_num == 4){
+				//move 1 to the right
+				current_grid_coord.col += 1;
+				player.loc_x = player.loc_x + tile_size;
+				//use the tile that goes up and down
+				player.sprite_x =  (player_alt_tile - 1) * tile_size;
+				drawMap();
+			}
+		  } else if (evt.keyCode == 38 || evt.charCode == 38){ //up key
+				sprite_num = map_data[current_grid_coord.row-1][current_grid_coord.col];
+				if ( sprite_num == 3 || sprite_num == 4){
+					//update the coordinates
+					current_grid_coord.row -= 1;
+					//update the player's location on the canvas
+					player.loc_y = player.loc_y - tile_size;
+					//use the tile that goes left and right
+					player.sprite_x =  (player_tile- 1) *tile_size;
+					drawMap();
+				}
+		  }	
+	}
+
+	
+    </script>
+</head>
+<body onload="init();">
+    <canvas id="acanvas" width="640" height="320"></canvas>
+    <p>Use the arrow keys to navigate the boat through the canal.</p>
+</body>
+</html>
